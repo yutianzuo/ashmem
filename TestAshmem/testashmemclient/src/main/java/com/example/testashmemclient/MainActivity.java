@@ -3,15 +3,19 @@ package com.example.testashmemclient;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.sharedmemlib.ISharedMem;
 
@@ -21,6 +25,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     Button b;
     EditText ed,ed2;
     TextView tv;
+    Button btnRequireLock;
+    Button btnReleaseLock;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +50,27 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 ShmClientLib.setVal(Integer.parseInt(ed2.getText().toString()),Integer.parseInt(ed.getText().toString()));
             }
         });
+
+        btnRequireLock = findViewById(R.id.btnLock);
+        btnRequireLock.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/lock"
+                        + ".lock";
+                boolean bRet = ShmClientLib.requireProcLock(strPath);
+                Log.e("testLock", "require lock:" + bRet);
+                Toast.makeText(MainActivity.this, "require lock:" + bRet, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        btnReleaseLock = findViewById(R.id.btnRelease);
+        btnReleaseLock.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShmClientLib.releaseProcLock();
+            }
+        });
     }
 
     @Override
@@ -52,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         try {
             ParcelFileDescriptor p = ShmMemService.OpenSharedMem("sh1", 1000, false);
             ShmClientLib.setMap(p.getFd(), 1000);
+            Log.e("FILEFD", "fd in testashemclient is:" + p.getFd() + "procid:" + android.os.Process.myPid());
         } catch (RemoteException e) {
             e.printStackTrace();
         }

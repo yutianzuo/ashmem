@@ -5,6 +5,8 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
+#include "simpleproclock.h"
+
 
 
 int *map ;
@@ -34,11 +36,36 @@ static jint getNum(JNIEnv *env, jclass cl, jint pos)
             return -1;
 }
 
+SimpleInterProcLock* g_lock = nullptr;
+static bool requireInterProcLock(JNIEnv *env, jclass cl, jstring filepath)
+{
+    const char *name = env->GetStringUTFChars(filepath, nullptr);
+    if (!g_lock)
+    {
+        g_lock = new SimpleInterProcLock(name);
+    }
+
+    return g_lock->try_lock();
+}
+
+static void releaseInterProcLock(JNIEnv *env, jclass cl)
+{
+    if (g_lock)
+    {
+        g_lock->release_lock();
+        delete g_lock;
+        g_lock = nullptr;
+    }
+}
+
+
 
 static JNINativeMethod method_table[] = {
         { "setVal", "(II)I", (void *) setNum },
         { "getVal", "(I)I", (void *) getNum },
-        { "setMap", "(II)V", (void *)setmap }
+        { "setMap", "(II)V", (void *)setmap },
+        { "requireProcLock", "(Ljava/lang/String;)Z", (void *)requireInterProcLock },
+        { "releaseProcLock", "()V", (void *)releaseInterProcLock }
 
 };
 

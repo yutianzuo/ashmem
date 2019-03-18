@@ -5,6 +5,8 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
+#include "simpleproclock.h"
+
 
 #define ASHMEM_NAME_LEN         256
 #define __ASHMEMIOC             0x77
@@ -72,12 +74,35 @@ static jint getNum(JNIEnv *env, jclass cl,jint fd, jint pos)
     }
     return -1;
 }
+SimpleInterProcLock* g_lock = nullptr;
+static bool requireInterProcLock(JNIEnv *env, jclass cl, jstring filepath)
+{
+    const char *name = env->GetStringUTFChars(filepath, nullptr);
+    if (!g_lock)
+    {
+        g_lock = new SimpleInterProcLock(name);
+    }
+
+    return g_lock->try_lock();
+}
+
+static void releaseInterProcLock(JNIEnv *env, jclass cl)
+{
+    if (g_lock)
+    {
+        g_lock->release_lock();
+        delete g_lock;
+        g_lock = nullptr;
+    }
+}
 
 
 static JNINativeMethod method_table[] = {
         { "setVal", "(III)I", (void *) setNum },
         { "getVal", "(II)I", (void *) getNum },
-        { "getFD", "(Ljava/lang/String;I)I", (void *)getFD }
+        { "getFD", "(Ljava/lang/String;I)I", (void *)getFD },
+        { "requireProcLock", "(Ljava/lang/String;)Z", (void *)requireInterProcLock },
+        { "releaseProcLock", "()V", (void *)releaseInterProcLock }
 
 };
 
