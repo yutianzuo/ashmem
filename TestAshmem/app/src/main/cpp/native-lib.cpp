@@ -29,6 +29,7 @@ static jint getFD(JNIEnv *env, jclass cl, jstring path,jint size)
 
     jint fd = open("/dev/ashmem",O_RDWR);
 
+    size = 1024* 4 * ::sysconf(_SC_PAGE_SIZE);
     ioctl(fd,ASHMEM_SET_NAME,name);
     ioctl(fd,ASHMEM_SET_SIZE,size);
 
@@ -45,13 +46,16 @@ static jint getFD(JNIEnv *env, jclass cl, jstring path,jint size)
 
 static jint setNum(JNIEnv *env, jclass cl,jint fd, jint pos,jint num)
 {
-    for(int i = 0; i < num; i++)
+    for(int i = 0; i <= pos; i++)
     {
         if(maps[i].fd == fd)
         {
             if(pos < (maps[i].size/ sizeof(int)))
             {
                 maps[i].map[pos] = num;
+//                char* tmp  = new char[1024*1024*3];
+//                memset(tmp, 2, 1024*1024*3);
+//                memcpy(maps[i].map, tmp, 1024*1024*3);
                 return 0;
             }
             return -1;
