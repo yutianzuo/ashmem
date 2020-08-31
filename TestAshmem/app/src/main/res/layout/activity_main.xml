@@ -33,6 +33,7 @@
 
     <EditText
         android:id="@+id/ed"
+        android:hint="value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -62,6 +63,7 @@
 
     <EditText
         android:id="@+id/ed2"
+        android:hint="position index"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"

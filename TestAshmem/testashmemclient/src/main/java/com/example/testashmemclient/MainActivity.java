@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.sharedmemlib.ISharedMem;
+import com.example.sharedmemlib.LoadListener;
+import com.example.sharedmemlib.LoadListener.Stub;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection{
 
@@ -77,7 +79,19 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         ShmMemService = ISharedMem.Stub.asInterface(iBinder);
         try {
-            ParcelFileDescriptor p = ShmMemService.OpenSharedMem("sh1", 1000, false);
+            ParcelFileDescriptor p = ShmMemService.OpenSharedMem("sh1", 1000, false,
+                    new LoadListener.Stub() {
+                @Override
+                public void onSuccess() throws RemoteException {
+                    //run in binder thread in current process
+                    Log.e("aidlcallback", "onSuccess" + Thread.currentThread().getName());
+                }
+
+                @Override
+                public void onFail(int errorCode, String msg) throws RemoteException {
+                    Log.e("aidlcallback", "onFail");
+                }
+            });
             ShmClientLib.setMap(p.getFd(), 1000);
             Log.e("FILEFD", "fd in testashemclient is:" + p.getFd() + "procid:" + android.os.Process.myPid());
         } catch (RemoteException e) {
