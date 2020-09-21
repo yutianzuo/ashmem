@@ -82,9 +82,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             ParcelFileDescriptor p = ShmMemService.OpenSharedMem("sh1", 1000, false,
                     new LoadListener.Stub() {
                 @Override
-                public void onSuccess() throws RemoteException {
+                public void onSuccess(int[] arr) throws RemoteException {
                     //run in binder thread in current process
                     Log.e("aidlcallback", "onSuccess thread:" + Thread.currentThread().getName());
+                    Log.e("aidlcallback", "out params:" + arr[0] + " " + arr[1]);
+                    arr[0] = 11;
+                    arr[1] = 12;
                 }
 
                 @Override

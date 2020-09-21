@@ -29,7 +29,11 @@ public class SharedMemImp extends ISharedMem.Stub {
                 @Override
                 public void run() {
                     try {
-                        listener.onSuccess();
+                        int arrtest[] = new int[2];
+                        arrtest[0] = 999;
+                        arrtest[1] = 998;
+                        listener.onSuccess(arrtest);
+                        Log.e("aidlserver", "out params:" + arrtest[0] + " " + arrtest[1]);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
