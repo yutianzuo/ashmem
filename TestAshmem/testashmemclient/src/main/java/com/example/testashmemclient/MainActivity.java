@@ -84,12 +84,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 @Override
                 public void onSuccess() throws RemoteException {
                     //run in binder thread in current process
-                    Log.e("aidlcallback", "onSuccess" + Thread.currentThread().getName());
+                    Log.e("aidlcallback", "onSuccess thread:" + Thread.currentThread().getName());
                 }
 
                 @Override
                 public void onFail(int errorCode, String msg) throws RemoteException {
-                    Log.e("aidlcallback", "onFail");
+                    Log.e("aidlcallback", "onFail thread:" + Thread.currentThread().getName() +
+                            " msg:" + msg);
                 }
             });
             ShmClientLib.setMap(p.getFd(), 1000);

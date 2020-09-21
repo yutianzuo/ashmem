@@ -17,5 +17,5 @@ interface LoadListener {
     * @param errorCode 错误码
     * @param msg 失败原因
     */
-    void onFail(int errorCode , String msg);
+    void onFail(int errorCode , in String msg);//String can only be [in]
 }

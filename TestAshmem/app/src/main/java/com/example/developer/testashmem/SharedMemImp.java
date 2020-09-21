@@ -35,7 +35,7 @@ public class SharedMemImp extends ISharedMem.Stub {
                     }
                 }
             }, 500);
-            listener.onFail(0, "test");
+            listener.onFail(0, "Fail from Server");
 
             return ParcelFileDescriptor.fromFd(fd);
         } catch (IOException e) {

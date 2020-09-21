@@ -5,5 +5,7 @@ import android.os.ParcelFileDescriptor;
 import com.example.sharedmemlib.LoadListener;
 
 interface ISharedMem {
-    ParcelFileDescriptor OpenSharedMem(String name, int size, boolean create, LoadListener listener);
+    //String can only be [in]
+    ParcelFileDescriptor OpenSharedMem(in String name, int size, boolean create, in LoadListener
+    listener);
 }
