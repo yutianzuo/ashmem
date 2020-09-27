@@ -29,11 +29,10 @@ public class SharedMemImp extends ISharedMem.Stub {
                 @Override
                 public void run() {
                     try {
-                        int arrtest[] = new int[2];
+                        int arrtest[] = new int[10];
                         arrtest[0] = 999;
-                        arrtest[1] = 998;
                         listener.onSuccess(arrtest);
-                        Log.e("aidlserver", "out params:" + arrtest[0] + " " + arrtest[1]);
+                        Log.e("aidlserver", "out params:" + outString(arrtest));
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -46,6 +45,17 @@ public class SharedMemImp extends ISharedMem.Stub {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private String outString(int[] arr) {
+        StringBuffer sbuffer = new StringBuffer();
+        for (int i = 0; i < arr.length; ++i) {
+            sbuffer.append(arr[i]);
+            if (i < arr.length - 1) {
+                sbuffer.append("-");
+            }
+        }
+        return sbuffer.toString();
     }
 
 }

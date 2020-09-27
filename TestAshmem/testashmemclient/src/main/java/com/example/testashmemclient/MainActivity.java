@@ -85,9 +85,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 public void onSuccess(int[] arr) throws RemoteException {
                     //run in binder thread in current process
                     Log.e("aidlcallback", "onSuccess thread:" + Thread.currentThread().getName());
-                    Log.e("aidlcallback", "out params:" + arr[0] + " " + arr[1]);
-                    arr[0] = 11;
-                    arr[1] = 12;
+                    Log.e("aidlcallback", "arr size:" + arr.length);
+                    Log.e("aidlcallback", "out params:" + arr[0]);
+                    for (int i = 0; i < arr.length; ++i) {
+                        arr[i] = i + 18;
+                    }
                 }
 
                 @Override
