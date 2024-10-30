@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <array>
 
 #include "simpleproclock.h"
 
@@ -14,7 +15,7 @@
 #define ASHMEM_SET_SIZE         _IOW(__ASHMEMIOC, 3, size_t)
 
 
-struct memArea{
+struct memArea {
     int *map;
     int fd;
     int size;
@@ -23,35 +24,28 @@ struct memArea{
 struct memArea maps[10];
 int num = 0;
 
-static jint getFD(JNIEnv *env, jclass cl, jstring path,jint size)
-{
-    const char *name = env->GetStringUTFChars(path,NULL);
+static jint getFD(JNIEnv *env, jclass cl, jstring path) {
+    const char *name = env->GetStringUTFChars(path, NULL);
 
-    jint fd = open("/dev/ashmem",O_RDWR);
+    jint fd = open("/dev/ashmem", O_RDWR);
 
-    size = 1024* 4 * ::sysconf(_SC_PAGE_SIZE);
-    ioctl(fd,ASHMEM_SET_NAME,name);
-    ioctl(fd,ASHMEM_SET_SIZE,size);
+    int size = 1024 * 4 * ::sysconf(_SC_PAGE_SIZE);
+    ioctl(fd, ASHMEM_SET_NAME, name);
+    ioctl(fd, ASHMEM_SET_SIZE, size);
 
     maps[num].size = size;
     maps[num].fd = fd;
-    maps[num++].map = (int *)mmap(0,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+    maps[num++].map = (int *) mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
-    env->ReleaseStringUTFChars(path,name);
+    env->ReleaseStringUTFChars(path, name);
 
     return fd;
-
-
 }
 
-static jint setNum(JNIEnv *env, jclass cl,jint fd, jint pos,jint num)
-{
-    for(int i = 0; i <= pos; i++)
-    {
-        if(maps[i].fd == fd)
-        {
-            if(pos < (maps[i].size/ sizeof(int)))
-            {
+static jint setNum(JNIEnv *env, jclass cl, jint fd, jint pos, jint num) {
+    for (int i = 0; i <= pos; i++) {
+        if (maps[i].fd == fd) {
+            if (pos < (maps[i].size / sizeof(int))) {
                 maps[i].map[pos] = num;
 //                char* tmp  = new char[1024*1024*3];
 //                memset(tmp, 2, 1024*1024*3);
@@ -63,14 +57,11 @@ static jint setNum(JNIEnv *env, jclass cl,jint fd, jint pos,jint num)
     }
     return -1;
 }
-static jint getNum(JNIEnv *env, jclass cl,jint fd, jint pos)
-{
-    for(int i = 0; i < num; i++)
-    {
-        if(maps[i].fd == fd)
-        {
-            if(pos < (maps[i].size/ sizeof(int)))
-            {
+
+static jint getNum(JNIEnv *env, jclass cl, jint fd, jint pos) {
+    for (int i = 0; i < num; i++) {
+        if (maps[i].fd == fd) {
+            if (pos < (maps[i].size / sizeof(int))) {
                 return maps[i].map[pos];
             }
             return -1;
@@ -78,22 +69,20 @@ static jint getNum(JNIEnv *env, jclass cl,jint fd, jint pos)
     }
     return -1;
 }
-SimpleInterProcLock* g_lock = nullptr;
-static bool requireInterProcLock(JNIEnv *env, jclass cl, jstring filepath)
-{
+
+SimpleInterProcLock *g_lock = nullptr;
+
+static jboolean requireInterProcLock(JNIEnv *env, jclass cl, jstring filepath) {
     const char *name = env->GetStringUTFChars(filepath, nullptr);
-    if (!g_lock)
-    {
+    if (!g_lock) {
         g_lock = new SimpleInterProcLock(name);
     }
 
     return g_lock->try_lock();
 }
 
-static void releaseInterProcLock(JNIEnv *env, jclass cl)
-{
-    if (g_lock)
-    {
+static void releaseInterProcLock(JNIEnv *env, jclass cl) {
+    if (g_lock) {
         g_lock->release_lock();
         delete g_lock;
         g_lock = nullptr;
@@ -101,24 +90,32 @@ static void releaseInterProcLock(JNIEnv *env, jclass cl)
 }
 
 
-static JNINativeMethod method_table[] = {
-        { "setVal", "(III)I", (void *) setNum },
-        { "getVal", "(II)I", (void *) getNum },
-        { "getFD", "(Ljava/lang/String;I)I", (void *)getFD },
-        { "requireProcLock", "(Ljava/lang/String;)Z", (void *)requireInterProcLock },
-        { "releaseProcLock", "()V", (void *)releaseInterProcLock }
+//static JNINativeMethod method_table[] = {
+//        {"setVal",          "(III)I",                 (void *) setNum},
+//        {"getVal",          "(II)I",                  (void *) getNum},
+//        {"getFD",           "(Ljava/lang/String;I)I", (void *) getFD},
+//        {"requireProcLock", "(Ljava/lang/String;)Z",  (void *) requireInterProcLock},
+//        {"releaseProcLock", "()V",                    (void *) releaseInterProcLock}
+//};
 
-};
 
-
-extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-    JNIEnv* env;
-    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+    JNIEnv *env;
+    if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     } else {
         jclass clazz = env->FindClass("com/example/developer/testashmem/ShmLib");
         if (clazz) {
-            jint ret = env->RegisterNatives(clazz, method_table, sizeof(method_table) / sizeof(method_table[0]));
+            std::array<JNINativeMethod, 5> methods{
+                    JNINativeMethod{"setVal", "(III)I", (void *) setNum},
+                    JNINativeMethod{"getVal", "(II)I", (void *) getNum},
+                    JNINativeMethod{"getFD", "(Ljava/lang/String;)I", (void *) getFD},
+                    JNINativeMethod{"requireProcLock", "(Ljava/lang/String;)Z",
+                                    (void *) requireInterProcLock},
+                    JNINativeMethod{"releaseProcLock", "()V", (void *) releaseInterProcLock}
+            };
+            jint ret = env->RegisterNatives(clazz, methods.data(),
+                                            methods.size());
             env->DeleteLocalRef(clazz);
             return ret == 0 ? JNI_VERSION_1_6 : JNI_ERR;
         } else {

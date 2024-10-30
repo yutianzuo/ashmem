@@ -19,7 +19,7 @@ public class SharedMemImp extends ISharedMem.Stub {
     public ParcelFileDescriptor OpenSharedMem(String name, int size, boolean create,
             final LoadListener listener) throws RemoteException {
         //run in binder thread in current process
-        int fd = ShmLib.OpenSharedMem(name, size, create);
+        int fd = ShmLib.OpenSharedMem(name, create);
         Log.e("aidlserver", "fd in app is:" + fd + " procid:" + android.os.Process.myPid() +
                 " threadid:" + Thread.currentThread().getName());
         try {

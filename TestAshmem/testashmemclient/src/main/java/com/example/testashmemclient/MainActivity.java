@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                             " msg:" + msg);
                         }
                     });
-            ShmClientLib.setMap(p.getFd(), 1000);
+            ShmClientLib.setMap(p.getFd());
             Log.e("aidlcallback", "fd in testashemclient is:" + p.getFd() + "procid:"
                     + android.os.Process.myPid());
         } catch (RemoteException e) {

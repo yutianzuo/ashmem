@@ -13,18 +13,18 @@ public class ShmLib {
         System.loadLibrary("native-lib");
     }
 
-    public static int OpenSharedMem(String name, int size, boolean create) {
+    public static int OpenSharedMem(String name, boolean create) {
         Integer i = memAreas.get(name);
         if (create && i != null) {return -1;}
         if (i == null) {
-            i = new Integer(getFD(name, size));
+            i = new Integer(getFD(name));
             memAreas.put(name, i);
         }
         return i.intValue();
 
     }
 
-    private static native int getFD(String name, int size);
+    private static native int getFD(String name);
 
     public static int setValue(String name, int pos, int val) {
         Integer fd = memAreas.get(name);
