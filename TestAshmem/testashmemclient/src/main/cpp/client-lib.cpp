@@ -11,8 +11,8 @@
 int *map;
 int size;
 
-static void setmap(JNIEnv *env, jclass cl, jint fd) {
-    size = 1024 * 4 * ::sysconf(_SC_PAGE_SIZE);
+static void setmap(JNIEnv *env, jclass cl, jint fd, jint memSize) {
+    size = memSize;
     map = (int *) mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 }
 
@@ -60,7 +60,7 @@ extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved) {
             std::array<JNINativeMethod, 5> methods{
                     JNINativeMethod{"setVal", "(II)I", (void *) setNum},
                     JNINativeMethod{"getVal", "(I)I", (void *) getNum},
-                    JNINativeMethod{"setMap", "(I)V", (void *) setmap},
+                    JNINativeMethod{"setMap", "(II)V", (void *) setmap},
                     JNINativeMethod{"requireProcLock", "(Ljava/lang/String;)Z",
                                     (void *) requireInterProcLock},
                     JNINativeMethod{"releaseProcLock", "()V", (void *) releaseInterProcLock}

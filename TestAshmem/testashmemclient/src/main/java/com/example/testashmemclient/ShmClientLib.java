@@ -8,7 +8,7 @@ public class ShmClientLib {
 
     public static native int setVal(int pos, int val);
     public static native int getVal(int pos);
-    public static native void setMap(int fd);
+    public static native void setMap(int fd, int size);
     public static native boolean requireProcLock(String filepath);
     public static native void releaseProcLock();
 

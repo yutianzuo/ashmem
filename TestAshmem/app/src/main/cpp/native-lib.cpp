@@ -24,12 +24,17 @@ struct memArea {
 struct memArea maps[10];
 int num = 0;
 
+static int getShmemSize() {
+    return 1024 * 4 * ::sysconf(_SC_PAGE_SIZE);
+}
+
+
 static jint getFD(JNIEnv *env, jclass cl, jstring memName) {
     const char *name = env->GetStringUTFChars(memName, NULL);
 
     jint fd = open("/dev/ashmem", O_RDWR);
 
-    int size = 1024 * 4 * ::sysconf(_SC_PAGE_SIZE);
+    int size = getShmemSize();
     ioctl(fd, ASHMEM_SET_NAME, name);
     ioctl(fd, ASHMEM_SET_SIZE, size);
 
@@ -96,7 +101,8 @@ extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     } else {
         jclass clazz = env->FindClass("com/example/developer/testashmem/ShmLib");
         if (clazz) {
-            std::array<JNINativeMethod, 5> methods{
+            std::array<JNINativeMethod, 6> methods{
+                    JNINativeMethod{"getShmemSize", "()I", (void *) getShmemSize},
                     JNINativeMethod{"setVal", "(III)I", (void *) setNum},
                     JNINativeMethod{"getVal", "(II)I", (void *) getNum},
                     JNINativeMethod{"getFD", "(Ljava/lang/String;)I", (void *) getFD},

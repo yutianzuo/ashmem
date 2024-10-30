@@ -92,10 +92,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Log.e("aidlcallback", "onServiceConnected:" + Thread.currentThread().getName());
         ShmMemService = ISharedMem.Stub.asInterface(iBinder);
         try {
-            ParcelFileDescriptor p = ShmMemService.OpenSharedMem("sh1", 1000, false,
+            final int[] fd = new int[1];
+            ParcelFileDescriptor p = ShmMemService.getSharedMemFD("sh1",
                     new LoadListener.Stub() {
                         @Override
-                        public void onSuccess(int[] arr) throws RemoteException {
+                        public void onSuccess(int size) throws RemoteException {
                             //run in binder thread in current process
                             MainActivity.this.runOnUiThread(() -> {
                                 Toast.makeText(MainActivity.this, "onSuccess", Toast.LENGTH_SHORT)
@@ -103,15 +104,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             });
                             Log.e("aidlcallback",
                                     "onSuccess thread:" + Thread.currentThread().getName());
-                            Log.e("aidlcallback", "arr size:" + arr.length);
-                            Log.e("aidlcallback", "out params:" + arr[0]);
-                            for (int i = 0; i < arr.length; ++i) {
-                                arr[i] = i + 18;
-                            }
+                            Log.e("aidlcallback", "size:" + size);
+                            Log.e("aidlcallback", "fd:" + fd[0]);
+                            ShmClientLib.setMap(fd[0], size);
                         }
 
                         @Override
-                        public void onFail(int errorCode, String msg) throws RemoteException {
+                        public void onFail(int errorCode, String msg) throws RemoteException { /// for test
                             MainActivity.this.runOnUiThread(() -> {
                                 Toast.makeText(MainActivity.this, "onFail", Toast.LENGTH_SHORT)
                                         .show();
@@ -121,9 +120,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                             " msg:" + msg);
                         }
                     });
-            ShmClientLib.setMap(p.getFd());
+
             Log.e("aidlcallback", "fd in testashemclient is:" + p.getFd() + "procid:"
                     + android.os.Process.myPid());
+            fd[0] = p.getFd();
         } catch (RemoteException e) {
             e.printStackTrace();
         }

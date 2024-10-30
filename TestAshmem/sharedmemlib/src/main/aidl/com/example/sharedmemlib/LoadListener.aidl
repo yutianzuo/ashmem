@@ -9,7 +9,7 @@ interface LoadListener {
     * 加载成功
     *
     */
-    void onSuccess(out int[] arr);
+    void onSuccess(int size);
 
     /**
     * 加载失败

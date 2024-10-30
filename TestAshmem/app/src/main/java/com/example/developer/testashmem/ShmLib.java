@@ -13,9 +13,8 @@ public class ShmLib {
         System.loadLibrary("native-lib");
     }
 
-    public static int OpenSharedMem(String name, boolean create) {
+    public static int OpenSharedMem(String name) {
         Integer i = memAreas.get(name);
-        if (create && i != null) {return -1;}
         if (i == null) {
             i = new Integer(getFD(name));
             memAreas.put(name, i);
@@ -39,6 +38,8 @@ public class ShmLib {
         if (fd != null) {return getVal(fd.intValue(), pos);}
         return -1;
     }
+
+    public static native int getShmemSize();
 
     private static native int getVal(int fd, int pos);
 

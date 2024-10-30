@@ -6,6 +6,6 @@ import com.example.sharedmemlib.LoadListener;
 
 interface ISharedMem {
     //String can only be [in]
-    ParcelFileDescriptor OpenSharedMem(in String name, int size, boolean create, in LoadListener
+    ParcelFileDescriptor getSharedMemFD(in String name, in LoadListener
     listener);
 }

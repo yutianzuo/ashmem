@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ShmLib.OpenSharedMem("sh1", true);
 
         edpos = findViewById(R.id.ed2);
         edval = findViewById(R.id.ed);
