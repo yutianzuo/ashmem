@@ -15,7 +15,7 @@ public class ShmLib {
 
     public static int OpenSharedMem(String name, int size, boolean create) {
         Integer i = memAreas.get(name);
-        if (create && i != null) { return -1; }
+        if (create && i != null) {return -1;}
         if (i == null) {
             i = new Integer(getFD(name, size));
             memAreas.put(name, i);
@@ -28,7 +28,7 @@ public class ShmLib {
 
     public static int setValue(String name, int pos, int val) {
         Integer fd = memAreas.get(name);
-        if (fd != null) { return setVal(fd.intValue(), pos, val); }
+        if (fd != null) {return setVal(fd.intValue(), pos, val);}
         return -1;
     }
 
@@ -36,7 +36,7 @@ public class ShmLib {
 
     public static int getValue(String name, int pos) {
         Integer fd = memAreas.get(name);
-        if (fd != null) { return getVal(fd.intValue(), pos); }
+        if (fd != null) {return getVal(fd.intValue(), pos);}
         return -1;
     }
 

@@ -15,7 +15,10 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-
+/**
+ * service 由于在不同品牌不同版本下表现可能不一致，有些设备，如果server app后台了，那么client就无法连接服务
+ * 最好在设备中，把所有对server app的限制都解除，再进行测试。
+ */
 public class ShmService extends Service {
     @Override
     public void onCreate() {
@@ -36,7 +39,8 @@ public class ShmService extends Service {
                     NotificationManager.IMPORTANCE_LOW);
             chan.setLightColor(Color.BLUE);
             chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-            NotificationManager manager = (NotificationManager) service.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager manager = (NotificationManager) service.getSystemService(
+                    Context.NOTIFICATION_SERVICE);
             manager.createNotificationChannel(chan);
         }
 
