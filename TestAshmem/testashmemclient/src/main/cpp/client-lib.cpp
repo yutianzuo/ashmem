@@ -50,17 +50,6 @@ static void releaseInterProcLock(JNIEnv *env, jclass cl) {
     }
 }
 
-
-//static JNINativeMethod method_table[] = {
-//        {"setVal",          "(II)I",                 (void *) setNum},
-//        {"getVal",          "(I)I",                  (void *) getNum},
-//        {"setMap",          "(II)V",                 (void *) setmap},
-//        {"requireProcLock", "(Ljava/lang/String;)Z", (void *) requireInterProcLock},
-//        {"releaseProcLock", "()V",                   (void *) releaseInterProcLock}
-//
-//};
-
-
 extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
     if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) != JNI_OK) {

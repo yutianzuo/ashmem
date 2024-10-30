@@ -24,8 +24,8 @@ struct memArea {
 struct memArea maps[10];
 int num = 0;
 
-static jint getFD(JNIEnv *env, jclass cl, jstring path) {
-    const char *name = env->GetStringUTFChars(path, NULL);
+static jint getFD(JNIEnv *env, jclass cl, jstring memName) {
+    const char *name = env->GetStringUTFChars(memName, NULL);
 
     jint fd = open("/dev/ashmem", O_RDWR);
 
@@ -37,7 +37,7 @@ static jint getFD(JNIEnv *env, jclass cl, jstring path) {
     maps[num].fd = fd;
     maps[num++].map = (int *) mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
-    env->ReleaseStringUTFChars(path, name);
+    env->ReleaseStringUTFChars(memName, name);
 
     return fd;
 }
@@ -88,16 +88,6 @@ static void releaseInterProcLock(JNIEnv *env, jclass cl) {
         g_lock = nullptr;
     }
 }
-
-
-//static JNINativeMethod method_table[] = {
-//        {"setVal",          "(III)I",                 (void *) setNum},
-//        {"getVal",          "(II)I",                  (void *) getNum},
-//        {"getFD",           "(Ljava/lang/String;I)I", (void *) getFD},
-//        {"requireProcLock", "(Ljava/lang/String;)Z",  (void *) requireInterProcLock},
-//        {"releaseProcLock", "()V",                    (void *) releaseInterProcLock}
-//};
-
 
 extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;

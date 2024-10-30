@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         btnRequireLock.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                /// 高版本需要赋予文件的完全访问权限，需要手动去设置中设置
                 String strPath = Environment.getExternalStorageDirectory().getAbsolutePath()
                         + "/lock"
                         + ".lock";
