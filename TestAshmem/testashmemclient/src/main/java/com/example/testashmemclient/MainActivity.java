@@ -16,10 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.sharedmemlib.ISharedMem;
-import com.example.sharedmemlib.LoadListener;
-import com.example.sharedmemlib.LoadListener.Stub;
+import com.example.sharedmemlib.*;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection{
 
@@ -33,7 +30,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bindService(new Intent("com.example.developer.testashmem.ShmService").setPackage("com.example.developer.testashmem"),this,BIND_AUTO_CREATE);
+        runOnUiThread(() -> {
+            boolean ret =
+                    bindService(new Intent("com.example.developer.testashmem.ShmService").setPackage("com"
+                            + ".example.developer.testashmem"),this,BIND_AUTO_CREATE);
+            Toast.makeText(this, "result:" + ret, Toast.LENGTH_SHORT).show();
+        });
+
         tv = (TextView)findViewById(R.id.tv);
         ed=(EditText)findViewById(R.id.ed);
         ed2 = (EditText)findViewById(R.id.ed2);
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+        Log.e("aidlcallback", "onServiceConnected:" + Thread.currentThread().getName());
         ShmMemService = ISharedMem.Stub.asInterface(iBinder);
         try {
             ParcelFileDescriptor p = ShmMemService.OpenSharedMem("sh1", 1000, false,
@@ -84,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 @Override
                 public void onSuccess(int[] arr) throws RemoteException {
                     //run in binder thread in current process
+                    MainActivity.this.runOnUiThread(() -> {
+                        Toast.makeText(MainActivity.this, "onSuccess", Toast.LENGTH_SHORT).show();
+                    });
                     Log.e("aidlcallback", "onSuccess thread:" + Thread.currentThread().getName());
                     Log.e("aidlcallback", "arr size:" + arr.length);
                     Log.e("aidlcallback", "out params:" + arr[0]);
@@ -94,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 @Override
                 public void onFail(int errorCode, String msg) throws RemoteException {
+                    MainActivity.this.runOnUiThread(() -> {
+                        Toast.makeText(MainActivity.this, "onFail", Toast.LENGTH_SHORT).show();
+                    });
                     Log.e("aidlcallback", "onFail thread:" + Thread.currentThread().getName() +
                             " msg:" + msg);
                 }
@@ -108,6 +118,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
-
+        Log.e("aidlcallback", "onServiceDisconnected:" + Thread.currentThread().getName());
     }
 }

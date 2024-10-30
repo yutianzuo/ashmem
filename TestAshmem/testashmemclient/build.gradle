@@ -7,8 +7,10 @@ android {
 
     defaultConfig {
         applicationId "com.example.testashmemclient"
-        minSdkVersion 15
-        targetSdkVersion 22
+        namespace "com.example.testashmemclient"
+        ndkVersion "26.2.11394342"
+        minSdkVersion 26
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 

@@ -20,7 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".ShmService">
+        <service
+            android:exported="true"
+            android:name=".ShmService">
             <intent-filter>
                 <action android:name="com.example.developer.testashmem.ShmService"/>
             </intent-filter>
